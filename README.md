@@ -9,6 +9,6 @@ mvn spring-boot:run
 ```
 Point your browser to http://localhost:8080/ to use api.
 
-### Availible endpoints
+### Available endpoints
 
 To see available requests, point your browser to http://localhost:8080/swagger-ui/index.html#/
