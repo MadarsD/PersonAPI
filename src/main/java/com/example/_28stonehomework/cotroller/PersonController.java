@@ -2,7 +2,6 @@ package com.example._28stonehomework.cotroller;
 
 import com.example._28stonehomework.models.Person;
 import com.example._28stonehomework.service.PersonService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,7 @@ public class PersonController {
 
     @ApiOperation(value = "Return persons with an age between specified query parameters", response = Person.class)
     @GetMapping(value = "personsByAge", params = {"fromAge", "toAge"})
-    public List<Person> getPersonsWithGivenAgeInterval(@RequestParam Integer fromAge, @RequestParam Integer toAge){
+    public List<Person> getPersonsWithGivenAgeInterval(@RequestParam Integer fromAge, @RequestParam Integer toAge) {
         return personService.getPersonsWithGivenAgeInterval(fromAge, toAge);
     }
 
