@@ -4,38 +4,27 @@ import com.example._28stonehomework.models.Person;
 import com.example._28stonehomework.repository.PersonRepository;
 import com.example._28stonehomework.service.PersonService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-//@MockitoSettings(strictness = Strictness.LENIENT)
 public class PersonServiceTest {
 
     @Mock
@@ -45,16 +34,16 @@ public class PersonServiceTest {
     PersonService personService;
 
     private final Person person = new Person(1,
-                "Test",
-                "Person",
-                "123456",
-                "test@email.com",
-                LocalDate.of(2000, 10, 26));
+            "Test",
+            "Person",
+            "123456",
+            "test@email.com",
+            LocalDate.of(2000, 10, 26));
 
 
     @DisplayName("JUnit test for addPerson() method")
     @Test
-    public void addPersonIsSuccessful(){
+    public void addPersonIsSuccessful() {
 
         given(personRepository.save(person)).willReturn(person);
 
@@ -64,10 +53,10 @@ public class PersonServiceTest {
         assertThat(savedPerson).isEqualTo(person);
     }
 
-    //Not working yet
+
     @DisplayName("JUnit test to check that you cannot add identical person")
     @Test
-    public void addingIdenticalPersonIsNotSuccessful(){
+    public void addingIdenticalPersonIsNotSuccessful() {
 
         Exception exception = null;
 
@@ -76,12 +65,13 @@ public class PersonServiceTest {
                 "Person",
                 "123456",
                 "test@email.com",
-                LocalDate.of(2022, 10, 26));
+                LocalDate.of(2000, 10, 26));
 
+        given(personRepository.findByNameAndSurnameAndPhoneAndEmailAndBirthDate(
+                person.getName(), person.getSurname(), person.getPhone(), person.getEmail(), person.getBirthDate()
+        )).willReturn(Optional.of(person));
 
-        willThrow(new ResponseStatusException(HttpStatus.CONFLICT)).given(personRepository).save(identicalPerson);
-
-        try{
+        try {
             personService.addPerson(identicalPerson);
         } catch (ResponseStatusException e) {
             exception = e;
@@ -90,33 +80,31 @@ public class PersonServiceTest {
         Assertions.assertNotNull(exception);
     }
 
-    //Not working yet
     @DisplayName("JUnit test for getPersonsWithGivenAgeInterval() method")
     @Test
-
-    public void willReturnPersonWhenPassedIntervalCorresponds(){
+    public void willReturnPersonWhenPassedIntervalCorresponds() {
 
         List<Person> persons = new ArrayList<>();
         persons.add(person);
-        System.out.println(persons);
 
-//        doReturn(persons).when(personRepository.findSpecificAgePersons(LocalDate.of(1995, 5, 26), LocalDate.of(2005, 5, 26)));
-//        given(personRepository.findSpecificAgePersons(LocalDate.of(1995, 5, 26), LocalDate.of(2005, 5, 26)))
-//                .willReturn();
+        LocalDate currentLocalDate = LocalDate.of(2022, 5, 26);
 
-        Mockito.lenient().when(personRepository
-                .findSpecificAgePersons(LocalDate.of(1995, 10, 26), LocalDate.of(2005, 10, 26))).
-                thenReturn(persons);
+        try (MockedStatic<LocalDate> localDateMock = Mockito.mockStatic(LocalDate.class, CALLS_REAL_METHODS)) {
+            localDateMock.when(LocalDate::now).thenReturn(currentLocalDate);
+            assertThat(LocalDate.now()).isEqualTo(currentLocalDate);
 
-        List<Person> matchingPersons = personService.getPersonsWithGivenAgeInterval(20, 30);
-        System.out.println(matchingPersons);
+            when(personRepository.
+                    findSpecificAgePersons(LocalDate.of(1995, 5, 26), LocalDate.of(2005, 5, 26))).thenReturn(persons);
 
-        assertThat(matchingPersons.get(0)).isEqualTo(person);
+            List<Person> matchingPersons = personService.getPersonsWithGivenAgeInterval(17, 27);
+
+            assertThat(matchingPersons).containsAll(persons);
+        }
     }
 
     @DisplayName("JUnit test for getAllPersons() method")
     @Test
-    public void addingAndReturningMultiplePersonsIsSuccessful(){
+    public void addingAndReturningMultiplePersonsIsSuccessful() {
 
         Person anotherPerson = new Person(2,
                 "TestTwo",
@@ -136,21 +124,21 @@ public class PersonServiceTest {
 
     @DisplayName("JUnit test for addNewPersons() method")
     @Test
-    public void addingNewPersonsListErasesExistingOnes(){
+    public void addingNewPersonsListErasesExistingOnes() {
 
-        List<Person> newPersons = List.of( new Person(1,
-                "TestTwo",
-                "PersonTwo",
-                "123456",
-                "test@email.com",
-                LocalDate.of(2022, 5, 26)),
+        List<Person> newPersons = List.of(new Person(1,
+                        "TestTwo",
+                        "PersonTwo",
+                        "123456",
+                        "test@email.com",
+                        LocalDate.of(2022, 5, 26)),
 
                 new Person(2,
-                "TestThree",
-                "PersonThree",
-                "123456",
-                "test@email.com",
-                LocalDate.of(2022, 5, 26)));
+                        "TestThree",
+                        "PersonThree",
+                        "123456",
+                        "test@email.com",
+                        LocalDate.of(2022, 5, 26)));
 
         Person personFromList = newPersons.get(1);
 

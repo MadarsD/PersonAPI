@@ -11,9 +11,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 @RequiredArgsConstructor
 public class PersonService {
+
     private final PersonRepository personRepository;
 
     public Person addPerson(Person person) {
@@ -51,4 +53,5 @@ public class PersonService {
     public void deleteAllPersons() {
         personRepository.deleteAll();
     }
+
 }
